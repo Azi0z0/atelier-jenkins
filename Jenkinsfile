@@ -1,10 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "laziz0/alpine"
+        DOCKER_CRED = "dockerhub-cred"
+    }
+
     stages {
-        stage('Hello') {
+
+        stage('Checkout') {
             steps {
-                echo "Pipeline from Jenkinsfile is working!"
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:1.0.0 ."
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: DOCKER_CRED,
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh "docker push ${IMAGE_NAME}:1.0.0"
+                }
             }
         }
     }
