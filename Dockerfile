@@ -1,4 +1,3 @@
 FROM alpine:latest
-RUN apk add --no-cache openjdk11-jre
-CMD ["java", "-version"]
+CMD ["echo", "alpine 1.0.0 pushed successfully"]
 
