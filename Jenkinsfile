@@ -14,6 +14,19 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_AUTH_TOKEN', variable: 'TOKEN')]) {
+                    sh """
+                      mvn sonar:sonar \
+                      -Dsonar.projectKey=atelier-jenkins \
+                      -Dsonar.host.url=http://localhost:9000 \
+                      -Dsonar.login=$TOKEN
+                    """
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 sh "docker build -t ${IMAGE_NAME}:1.0.0 ."
